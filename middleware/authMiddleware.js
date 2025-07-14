@@ -19,6 +19,12 @@ module.exports = (req, res, next) => {
     req.user = decoded.user;
     next(); // Move to the next middleware/route handler
   } catch (err) {
+    // Specific check for TokenExpiredError
+    if (err.name === "TokenExpiredError") {
+      return res
+        .status(401)
+        .json({ message: "Token expired. Please log in again." });
+    }
     // If token is not valid (e.g., expired, malformed)
     res.status(401).json({ message: "Token is not valid." });
   }

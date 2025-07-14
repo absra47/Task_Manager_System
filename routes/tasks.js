@@ -10,5 +10,6 @@ const taskController = require("../controllers/taskController"); // We'll create
 router.post("/", authMiddleware, taskController.createTask);
 router.get("/", authMiddleware, taskController.getTasks);
 router.patch("/:id", authMiddleware, taskController.updateTaskStatus);
+router.delete("/:id", authMiddleware, taskController.deleteTask);
 
 module.exports = router;

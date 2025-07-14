@@ -4,7 +4,7 @@ const Task = require("../models/Task"); // Import the Task model
 // @desc    Create a new task
 // @route   POST /api/tasks
 // @access  Private
-exports.createTask = async (req, res) => {
+exports.createTask = async (req, res, next) => {
   const { name } = req.body;
 
   try {
@@ -28,10 +28,10 @@ exports.createTask = async (req, res) => {
     if (err.name === "ValidationError") {
       return res.status(400).json({ message: err.message });
     }
-    res.status(500).send("Server Error");
+    next(err);
   }
 };
-exports.getTasks = async (req, res) => {
+exports.getTasks = async (req, res, next) => {
   try {
     // Find all tasks where the 'user' field matches the authenticated user's ID
     // Sort them by 'createdAt' in descending order (latest first)
@@ -42,24 +42,22 @@ exports.getTasks = async (req, res) => {
     res.json(tasks); // Respond with the array of tasks
   } catch (err) {
     console.error(err.message);
-    res.status(500).send("Server Error");
+    next(err);
   }
 };
 // @desc    Update task status (pending / completed)
 // @route   PATCH /api/tasks/:id
 // @access  Private
-exports.updateTaskStatus = async (req, res) => {
+exports.updateTaskStatus = async (req, res, next) => {
   const { id } = req.params; // Get task ID from URL parameters
   const { status } = req.body; // Get new status from request body
 
   // 1. Validate status input
   const validStatuses = ["pending", "completed"];
   if (!status || !validStatuses.includes(status)) {
-    return res
-      .status(400)
-      .json({
-        message: 'Invalid status provided. Must be "pending" or "completed".',
-      });
+    return res.status(400).json({
+      message: 'Invalid status provided. Must be "pending" or "completed".',
+    });
   }
 
   try {
@@ -86,6 +84,35 @@ exports.updateTaskStatus = async (req, res) => {
     if (err.kind === "ObjectId") {
       return res.status(400).json({ message: "Invalid Task ID format." });
     }
-    res.status(500).send("Server Error");
+    next(err);
+  }
+};
+// @desc    Delete a task
+// @route   DELETE /api/tasks/:id
+// @access  Private
+exports.deleteTask = async (req, res, next) => {
+  const { id } = req.params; // Get task ID from URL parameters
+
+  try {
+    // 1. Find the task by ID and ensure it belongs to the authenticated user
+    // Using findOneAndDelete to find and delete in one operation
+    const task = await Task.findOneAndDelete({ _id: id, user: req.user.id });
+
+    if (!task) {
+      // If task not found OR task does not belong to user
+      return res
+        .status(404)
+        .json({ message: "Task not found or unauthorized to delete." });
+    }
+
+    // 2. Respond with success message
+    res.json({ message: "Task deleted successfully!" });
+  } catch (err) {
+    console.error(err.message);
+    // Handle specific Mongoose error for invalid ObjectId format
+    if (err.kind === "ObjectId") {
+      return res.status(400).json({ message: "Invalid Task ID format." });
+    }
+    next(err);
   }
 };

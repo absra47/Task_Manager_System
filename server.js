@@ -3,6 +3,8 @@ require("dotenv").config(); // Load environment variables from .env file
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db"); // We'll create this next
+const notFound = require("./middleware/notFound");
+const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
 
@@ -20,8 +22,13 @@ app.get("/", (req, res) => {
 // Define Routes (we'll add these later)
 
 app.use("/api/auth", require("./routes/auth"));
-app.use('/api/users', require('./routes/users'));
-app.use('/api/tasks', require('./routes/tasks'));
+app.use("/api/users", require("./routes/users"));
+app.use("/api/tasks", require("./routes/tasks"));
+
+// --- Error Handling Middleware ---
+// Must be placed AFTER all routes
+app.use(notFound); // Catches 404s for undefined routes
+app.use(errorHandler); // Catches all other errors
 
 const PORT = process.env.PORT || 5000;
 

@@ -6,7 +6,7 @@ const User = require("../models/User"); // Import the User model
 // @desc    Register user
 // @route   POST /api/auth/signup
 // @access  Public
-exports.signup = async (req, res) => {
+exports.signup = async (req, res, next) => {
   const { name, email, password } = req.body;
 
   try {
@@ -63,14 +63,14 @@ exports.signup = async (req, res) => {
     if (err.name === "ValidationError") {
       return res.status(400).json({ message: err.message });
     }
-    res.status(500).send("Server Error");
+    next(err);
   }
 };
 
 // @desc    Authenticate user & get token (Login)
 // @route   POST /api/auth/login
 // @access  Public
-exports.login = async (req, res) => {
+exports.login = async (req, res, next) => {
   const { email, password } = req.body;
 
   try {
@@ -114,6 +114,6 @@ exports.login = async (req, res) => {
     );
   } catch (err) {
     console.error(err.message);
-    res.status(500).send("Server Error");
+    next(err);
   }
 };
