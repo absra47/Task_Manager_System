@@ -116,3 +116,48 @@ exports.deleteTask = async (req, res, next) => {
     next(err);
   }
 };
+
+// @desc    Get all tasks for the authenticated user with pagination
+// @route   GET /api/tasks?page=<number>&limit=<number>
+// @access  Private
+exports.getTasks = async (req, res, next) => {
+  try {
+    // Extract pagination parameters from query string
+    // Convert to number, default to 1 for page and 10 for limit
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const skip = (page - 1) * limit; // Calculate how many documents to skip
+
+    // Build query object for the authenticated user
+    const query = { user: req.user.id };
+
+    // Get total number of tasks matching the query for pagination metadata
+    const totalTasks = await Task.countDocuments(query);
+
+    // Get tasks with skip and limit, sorted by creation date
+    const tasks = await Task.find(query)
+      .sort({ createdAt: -1 }) // Sort by latest first
+      .skip(skip)
+      .limit(limit);
+
+    // Calculate total pages
+    const totalPages = Math.ceil(totalTasks / limit);
+
+    // Respond with tasks and pagination metadata
+    res.json({
+      tasks,
+      pagination: {
+        totalTasks,
+        currentPage: page,
+        totalPages,
+        limit,
+        // Optional: Include next/prev page links if needed by frontend
+        nextPage: page < totalPages ? page + 1 : null,
+        prevPage: page > 1 ? page - 1 : null,
+      },
+    });
+  } catch (err) {
+    console.error(err.message);
+    next(err); // Pass to global error handler for 500
+  }
+};
