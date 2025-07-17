@@ -1,0 +1,303 @@
+# Task Management API Documentation
+
+This document describes the RESTful API for the Task Management application.
+
+## Base URL
+
+`http://localhost:5000/api` (during local development)
+
+## Authentication
+
+All protected routes require an `x-auth-token` header containing a valid JSON Web Token (JWT) obtained from the login endpoint.
+
+### 1. Register User
+
+* **Method:** `POST`
+* **Path:** `/api/auth/signup`
+* **Description:** Registers a new user and returns a JWT for authentication.
+* **Request Payload (JSON):**
+    ```json
+    {
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "password": "mySecurePassword123"
+    }
+    ```
+* **Success Response (201 Created):**
+    ```json
+    {
+      "message": "User registered successfully!",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+      "user": {
+        "id": "60c72b2f9f1b2c001c8e4d5a",
+        "name": "John Doe",
+        "email": "john.doe@example.com"
+      }
+    }
+    ```
+* **Error Responses:**
+    * `400 Bad Request`:
+        ```json
+        { "message": "Validation Error: User validation failed: email: Path `email` is required." }
+        ```
+    * `409 Conflict`: (If user with email already exists)
+        ```json
+        { "message": "User already exists with this email." }
+        ```
+    * `500 Internal Server Error`: (For unexpected server errors)
+        ```json
+        { "message": "Server Error" }
+        ```
+
+### 2. Login User
+
+* **Method:** `POST`
+* **Path:** `/api/auth/login`
+* **Description:** Authenticates a user and returns a JWT.
+* **Request Payload (JSON):**
+    ```json
+    {
+      "email": "john.doe@example.com",
+      "password": "mySecurePassword123"
+    }
+    ```
+* **Success Response (200 OK):**
+    ```json
+    {
+      "message": "Logged in successfully!",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+      "user": {
+        "id": "60c72b2f9f1b2c001c8e4d5a",
+        "name": "John Doe",
+        "email": "john.doe@example.com"
+      }
+    }
+    ```
+* **Error Responses:**
+    * `401 Unauthorized`: (If email/password are incorrect or user doesn't exist)
+        ```json
+        { "message": "Invalid credentials." }
+        ```
+    * `500 Internal Server Error`:
+        ```json
+        { "message": "Server Error" }
+        ```
+
+## User Profile
+
+### 1. Get Authenticated User Profile
+
+* **Method:** `GET`
+* **Path:** `/api/users/profile`
+* **Description:** Retrieves the name and email of the currently authenticated user.
+* **Headers:**
+    * `x-auth-token: <JWT>`
+* **Success Response (200 OK):**
+    ```json
+    {
+      "name": "John Doe",
+      "email": "john.doe@example.com"
+    }
+    ```
+* **Error Responses:**
+    * `401 Unauthorized`: (If no token or invalid token)
+        ```json
+        { "message": "No token, authorization denied." }
+        ```
+        ```json
+        { "message": "Token is not valid." }
+        ```
+        ```json
+        { "message": "Token expired. Please log in again." }
+        ```
+    * `404 Not Found`: (Unlikely, but if user not found in DB after token valid)
+        ```json
+        { "message": "User profile not found." }
+        ```
+    * `500 Internal Server Error`:
+        ```json
+        { "message": "Server Error" }
+        ```
+
+## Task Management
+
+### 1. Create a New Task
+
+* **Method:** `POST`
+* **Path:** `/api/tasks`
+* **Description:** Creates a new task for the authenticated user. Task status defaults to `pending`.
+* **Headers:**
+    * `Content-Type: application/json`
+    * `x-auth-token: <JWT>`
+* **Request Payload (JSON):**
+    ```json
+    {
+      "name": "Buy groceries"
+    }
+    ```
+* **Success Response (201 Created):**
+    ```json
+    {
+      "_id": "60c72b2f9f1b2c001c8e4d5f",
+      "name": "Buy groceries",
+      "status": "pending",
+      "user": "60c72b2f9f1b2c001c8e4d5a",
+      "createdAt": "2025-07-17T10:00:00.000Z",
+      "__v": 0
+    }
+    ```
+* **Error Responses:**
+    * `400 Bad Request`: (If `name` is missing or empty)
+        ```json
+        { "message": "Task name is required." }
+        ```
+    * `401 Unauthorized`: (If no token or invalid token)
+        ```json
+        { "message": "No token, authorization denied." }
+        ```
+    * `500 Internal Server Error`:
+        ```json
+        { "message": "Server Error" }
+        ```
+
+### 2. Get All Tasks (with Pagination & Search)
+
+* **Method:** `GET`
+* **Path:** `/api/tasks`
+* **Description:** Retrieves a paginated and searchable list of tasks belonging to the authenticated user.
+* **Headers:**
+    * `x-auth-token: <JWT>`
+* **Query Parameters:**
+    * `page`: (Optional) The page number to retrieve. Defaults to `1`.
+    * `limit`: (Optional) The number of tasks per page. Defaults to `10`.
+    * `search`: (Optional) A string to search for within task names (case-insensitive, partial match).
+* **Example URLs:**
+    * `/api/tasks`
+    * `/api/tasks?page=2&limit=5`
+    * `/api/tasks?search=project`
+    * `/api/tasks?page=1&limit=3&search=meeting`
+* **Success Response (200 OK):**
+    ```json
+    {
+      "tasks": [
+        {
+          "_id": "60c72b2f9f1b2c001c8e4d60",
+          "name": "Finish API documentation",
+          "status": "pending",
+          "user": "60c72b2f9f1b2c001c8e4d5a",
+          "createdAt": "2025-07-17T10:30:00.000Z",
+          "__v": 0
+        },
+        {
+          "_id": "60c72b2f9f1b2c001c8e4d5f",
+          "name": "Buy groceries",
+          "status": "completed",
+          "user": "60c72b2f9f1b2c001c8e4d5a",
+          "createdAt": "2025-07-17T10:00:00.000Z",
+          "__v": 0
+        }
+      ],
+      "pagination": {
+        "totalTasks": 15,
+        "currentPage": 1,
+        "totalPages": 2,
+        "limit": 10,
+        "nextPage": 2,
+        "prevPage": null
+      }
+    }
+    ```
+* **Error Responses:**
+    * `401 Unauthorized`: (If no token or invalid token)
+        ```json
+        { "message": "No token, authorization denied." }
+        ```
+    * `500 Internal Server Error`:
+        ```json
+        { "message": "Server Error" }
+        ```
+
+### 3. Update Task Status
+
+* **Method:** `PATCH`
+* **Path:** `/api/tasks/:id`
+* **Description:** Updates the status of a specific task belonging to the authenticated user.
+* **Headers:**
+    * `Content-Type: application/json`
+    * `x-auth-token: <JWT>`
+* **URL Parameters:**
+    * `id`: The unique ID of the task to update.
+* **Request Payload (JSON):**
+    ```json
+    {
+      "status": "completed"
+    }
+    ```
+    (Or `{"status": "pending"}`)
+* **Success Response (200 OK):**
+    ```json
+    {
+      "message": "Task status updated successfully.",
+      "task": {
+        "_id": "60c72b2f9f1b2c001c8e4d5f",
+        "name": "Buy groceries",
+        "status": "completed",
+        "user": "60c72b2f9f1b2c001c8e4d5a",
+        "createdAt": "2025-07-17T10:00:00.000Z",
+        "__v": 0
+      }
+    }
+    ```
+* **Error Responses:**
+    * `400 Bad Request`: (If invalid `id` format or invalid `status` provided)
+        ```json
+        { "message": "Invalid Task ID format." }
+        ```
+        ```json
+        { "message": "Invalid status provided. Must be \"pending\" or \"completed\"." }
+        ```
+    * `401 Unauthorized`: (If no token or invalid token)
+        ```json
+        { "message": "No token, authorization denied." }
+        ```
+    * `404 Not Found`: (If task not found or does not belong to the user)
+        ```json
+        { "message": "Task not found or unauthorized." }
+        ```
+    * `500 Internal Server Error`:
+        ```json
+        { "message": "Server Error" }
+        ```
+
+### 4. Delete a Task
+
+* **Method:** `DELETE`
+* **Path:** `/api/tasks/:id`
+* **Description:** Deletes a specific task belonging to the authenticated user.
+* **Headers:**
+    * `x-auth-token: <JWT>`
+* **URL Parameters:**
+    * `id`: The unique ID of the task to delete.
+* **Success Response (200 OK):**
+    ```json
+    {
+      "message": "Task deleted successfully!"
+    }
+    ```
+* **Error Responses:**
+    * `400 Bad Request`: (If invalid `id` format)
+        ```json
+        { "message": "Invalid Task ID format." }
+        ```
+    * `401 Unauthorized`: (If no token or invalid token)
+        ```json
+        { "message": "No token, authorization denied." }
+        ```
+    * `404 Not Found`: (If task not found or does not belong to the user)
+        ```json
+        { "message": "Task not found or unauthorized to delete." }
+        ```
+    * `500 Internal Server Error`:
+        ```json
+        { "message": "Server Error" }
+        ```
