@@ -129,11 +129,23 @@ exports.updateTaskStatus = async (req, res, next) => {
 // @desc    Delete a task
 // @route   DELETE /api/tasks/:id
 // @access  Private
+// controllers/taskController.js
+
 exports.deleteTask = async (req, res, next) => {
   const { id } = req.params; // Get task ID from URL parameters
+  const { confirmation } = req.body; // <-- NEW: Get confirmation string from request body
 
   try {
-    // 1. Find the task by ID and ensure it belongs to the authenticated user
+    // NEW: 1. Validate the confirmation string
+    if (!confirmation || confirmation.toLowerCase() !== "delete") {
+      return res
+        .status(400)
+        .json({
+          message: 'Please type "delete" in the confirmation field to proceed.',
+        });
+    }
+
+    // 2. Find the task by ID and ensure it belongs to the authenticated user
     // Using findOneAndDelete to find and delete in one operation
     const task = await Task.findOneAndDelete({ _id: id, user: req.user.id });
 
@@ -144,7 +156,7 @@ exports.deleteTask = async (req, res, next) => {
         .json({ message: "Task not found or unauthorized to delete." });
     }
 
-    // 2. Respond with success message
+    // 3. Respond with success message
     res.json({ message: "Task deleted successfully!" });
   } catch (err) {
     console.error(err.message);
