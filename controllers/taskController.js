@@ -138,11 +138,9 @@ exports.deleteTask = async (req, res, next) => {
   try {
     // NEW: 1. Validate the confirmation string
     if (!confirmation || confirmation.toLowerCase() !== "delete") {
-      return res
-        .status(400)
-        .json({
-          message: 'Please type "delete" in the confirmation field to proceed.',
-        });
+      return res.status(400).json({
+        message: 'Please type "delete" in the confirmation field to proceed.',
+      });
     }
 
     // 2. Find the task by ID and ensure it belongs to the authenticated user
