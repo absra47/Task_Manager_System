@@ -10,6 +10,22 @@ exports.signup = async (req, res, next) => {
   const { name, email, password } = req.body;
 
   try {
+    // Input Validation: Basic checks for presence
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "Please enter all fields." });
+    }
+    // Input Validation: Email format (basic regex, Mongoose schema also validates)
+    if (!/^[\w-]+(?:\.[\w-]+)*@(?:[\w-]+\.)+[a-zA-Z]{2,7}$/.test(email)) {
+      return res
+        .status(400)
+        .json({ message: "Please enter a valid email address." });
+    }
+    // Input Validation: Password strength
+    if (password.length < 6) {
+      return res
+        .status(400)
+        .json({ message: "Password must be at least 6 characters long." });
+    }
     // 1. Check if user already exists
     let user = await User.findOne({ email });
 
@@ -74,6 +90,9 @@ exports.login = async (req, res, next) => {
   const { email, password } = req.body;
 
   try {
+    if (!email || !password) {
+      return res.status(400).json({ message: "Please enter all fields." });
+    }
     // 1. Check if user exists
     let user = await User.findOne({ email });
 
