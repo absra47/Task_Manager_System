@@ -8,7 +8,7 @@ const TaskSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["pending", "completed"], // Ensures status can only be 'pending' or 'completed'
+    enum: ["pending", "in-progress", "completed"], // Ensures status can only be 'pending' or 'completed'
     default: "pending", // New tasks will automatically have 'pending' status
     required: true,
   },
