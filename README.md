@@ -70,7 +70,7 @@ To set up and run this project on your local machine, follow these steps:
 
 ## API Endpoints
 
-A detailed overview of all API endpoints, their methods, request/response structures, and error codes can be found in the dedicated [API Documentation](API.md) file.
+A detailed overview of all API endpoints, their methods, request/response structures, and error codes can be found in the dedicated [API Documentation](https://github.com/absra47/Task_Manager_System/blob/9894b23b94631eaa21b2bf417d05da04fcbc6ca5/API.md%20%20) file.
 
 **Brief Overview:**
 
