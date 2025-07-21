@@ -84,13 +84,13 @@ A detailed overview of all API endpoints, their methods, request/response struct
 
 ## Challenges Faced & How I Overcame Them
 
-- **[Challenge 1 - e.g., Setting up robust error handling]:**
+- **[Challenge 1 -, Setting up robust error handling]:**
   - _How I overcame it:_ Implemented a centralized error handling middleware to catch errors and return consistent JSON responses, rather than letting the server crash. This involved using `try-catch` blocks in controllers and passing errors to `next(err)`.
-- **[Challenge 2 - e.g., Implementing pagination and search]:**
+- **[Challenge 2 -, Implementing pagination and search]:**
   - _How I overcame it:_ Used Mongoose's powerful query methods (`skip`, `limit`, `find` with regex for search) combined with `countDocuments` to calculate total pages and provide comprehensive pagination metadata.
-- **[Challenge 3 - e.g., Secure deletion requiring confirmation]:**
+- **[Challenge 3 - , Secure deletion requiring confirmation]:**
   - _How I overcame it:_ Added an extra layer of security by requiring a specific string in the request body, validating it in the controller before proceeding with the `findOneAndDelete` operation. This prevents accidental data loss.
-- **[Challenge 4 - e.g., Deployment to Render]:**
+- **[Challenge 4 -, Deployment to Render]:**
   - _How I overcame it:_ Configured a `Procfile`, ensured the `start` script was correct, and meticulously added environment variables in the Render dashboard, carefully checking the MongoDB Atlas connection string and IP access settings.
 
 ---
