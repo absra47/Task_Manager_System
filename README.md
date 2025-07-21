@@ -4,7 +4,7 @@ A robust and scalable RESTful API for managing tasks, built with Node.js, Expres
 
 ## Live API
 
-🚀 Check out the deployed API here: `https://task-manager-system-utp6.onrender.com` remember your `/api` base path for actual endpoints)\_
+🚀 Check out the deployed API here: `https://task-manager-system-utp6.onrender.com/api` remember your `/api` base path for actual endpoints)\_
 
 ## GitHub Repository
 
@@ -16,7 +16,8 @@ A robust and scalable RESTful API for managing tasks, built with Node.js, Expres
 - **Database:** MongoDB (using Mongoose ODM)
 - **Authentication:** JWT (JSON Web Tokens) with Bcrypt for password hashing
 - **Deployment:** Render
-- **Testing:** Jest, Supertest
+- **Automated Testing:** Jest, Supertest
+- **Manual Testing** Postman, Thunder Client (VS Code Extension)
 - **Environment Management:** Dotenv
 - **HTTP Requests:** CORS
 
