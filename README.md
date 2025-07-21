@@ -16,8 +16,7 @@ A robust and scalable RESTful API for managing tasks, built with Node.js, Expres
 - **Database:** MongoDB (using Mongoose ODM)
 - **Authentication:** JWT (JSON Web Tokens) with Bcrypt for password hashing
 - **Deployment:** Render
-- **Automated Testing:** Jest, Supertest
-- **Manual Testing** Postman, Thunder Client (VS Code Extension)
+- **Testing** Postman, Thunder Client (VS Code Extension)
 - **Environment Management:** Dotenv
 - **HTTP Requests:** CORS
 
