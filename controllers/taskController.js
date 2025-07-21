@@ -95,7 +95,8 @@ exports.updateTaskStatus = async (req, res, next) => {
   const validStatuses = ["pending", "in-progress", "completed"];
   if (!status || !validStatuses.includes(status)) {
     return res.status(400).json({
-      message: 'Invalid status provided. Must be "pending" or "completed".',
+      message:
+        'Invalid status provided. Must be "pending" , "in-progress" or "completed".',
     });
   }
 
